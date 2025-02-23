@@ -22,12 +22,21 @@ def format_date(dt):
 def get_show_poster(slug):
     resp = requests.get(f"https://api.trakt.tv/shows/{slug}?extended=images", headers=HEADERS)
     if resp.status_code == 200:
-        poster = resp.json().get("images", {}).get("poster", "")
-        if isinstance(poster, dict):
-            poster = poster.get("thumb") or poster.get("full", "")
-        elif isinstance(poster, list):
-            poster = poster[0] if poster else ""
-        return f"https:{poster}" if poster and not poster.startswith("http") else poster
+        data = resp.json()
+        # Try to get fanart first, then poster
+        images = data.get("images", {})
+        poster = (
+            images.get("poster", {}).get("full") or
+            images.get("fanart", {}).get("full") or
+            ""
+        )
+        # Clean up the URL
+        if poster:
+            if poster.startswith("//"):
+                poster = f"https:{poster}"
+            elif not poster.startswith(("http://", "https://")):
+                poster = f"https://{poster}"
+        return poster
     return None
 
 
