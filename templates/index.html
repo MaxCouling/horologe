@@ -1,14 +1,45 @@
 {% extends "base.html" %}
-
 {% block title %}EpiTime - Home{% endblock %}
 
 {% block content %}
-<div class="hero min-h-screen bg-base-200">
-    <div class="hero-content text-center">
-        <div class="max-w-md">
-            <h1 class="text-5xl font-bold">EpiTime</h1>
-            <p class="py-6">Track your favorite TV shows and find out when the next episode airs.</p>
-            <button class="btn btn-primary">Get Started</button>
+<div class="min-h-screen bg-base-200 p-4 sm:p-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-8 sm:mb-12">
+            <h1 class="text-4xl sm:text-5xl font-bold mb-3">
+                <span class="text-primary">Epi</span>Time
+            </h1>
+            <p class="text-lg sm:text-xl text-base-content/80">
+                Track your favorite TV shows and never miss an episode
+            </p>
+        </div>
+
+        <!-- Show Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            {% for show in featured_shows %}
+            <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <figure class="relative pt-[150%] overflow-hidden">
+                    <img
+                        src="{{ show.poster | safe }}"
+                        alt="{{ show.name }}"
+                        class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                    />
+                </figure>
+                <div class="card-body p-4 sm:p-6">
+                    <h2 class="card-title justify-center text-xl sm:text-2xl text-center">
+                        {{ show.name }}
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="badge badge-primary badge-md">Next Episode</span>
+                        <p class="text-center text-sm sm:text-base">
+                            {{ show.next_episode }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
