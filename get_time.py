@@ -129,5 +129,5 @@ def get_time(show_name):
         print(f"  Air time (Local): {local_dt.isoformat()}")
         return [ep_info, utc_dt.isoformat(), local_dt.isoformat()]
     else:
-        #print("No upcoming episodes found. All episodes have aired.")
+        print("No upcoming episodes found. All episodes have aired.")
         return("No upcoming episodes found. All episodes have aired.")
