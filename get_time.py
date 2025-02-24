@@ -84,9 +84,9 @@ def get_show_info(show_name):
     next_ep = get_next_episode(slug)
 
     if next_ep:
-        local_time = next_ep["air_time"].astimezone()
-        next_episode_str = (
-                            f"\n{format_date(local_time)}")
+        # Keep the time in UTC
+        utc_time = next_ep["air_time"]
+        next_episode_str = f"\n{format_date(utc_time)}"
     else:
         next_episode_str = "No upcoming episode"
 

@@ -32,4 +32,16 @@
     </footer>
 
 </body>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-utc]').forEach(function(element) {
+      let utcString = element.getAttribute('data-utc');
+      if (utcString) {
+        // Convert to local time
+        let localTime = new Date(utcString + 'Z');
+        element.textContent = localTime.toLocaleString();
+      }
+    });
+  });
+</script>
 </html>
