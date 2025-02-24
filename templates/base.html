@@ -36,10 +36,24 @@
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-utc]').forEach(function(element) {
       let utcString = element.getAttribute('data-utc');
-      if (utcString) {
-        // Convert to local time
-        let localTime = new Date(utcString + 'Z');
-        element.textContent = localTime.toLocaleString();
+      if (utcString && utcString !== "") {
+        try {
+          const date = new Date(utcString);
+          // Format the date in a user-friendly way
+          const formatted = new Intl.DateTimeFormat(undefined, {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'short',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short'
+          }).format(date);
+          element.textContent = formatted;
+        } catch (e) {
+          element.textContent = "No upcoming episode";
+        }
+      } else {
+        element.textContent = "No upcoming episode";
       }
     });
   });

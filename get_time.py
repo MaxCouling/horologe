@@ -84,11 +84,10 @@ def get_show_info(show_name):
     next_ep = get_next_episode(slug)
 
     if next_ep:
-        # Keep the time in UTC
-        utc_time = next_ep["air_time"]
-        next_episode_str = f"\n{format_date(utc_time)}"
+        # Pass the ISO format string directly
+        next_episode_str = next_ep["air_time"].isoformat()
     else:
-        next_episode_str = "No upcoming episode"
+        next_episode_str = ""
 
     return {
         "name": show_name,
