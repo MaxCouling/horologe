@@ -5,16 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Horologe - Track your favorite shows easily.">
     <title>{% block title %}Horologe{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"\></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.2/dist/full.css" rel="stylesheet" \/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.2/dist/full.css" rel="stylesheet" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Horologe">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#570df8">
 </head>
 <body class="flex flex-col min-h-screen">
 
     <!-- Navigation Bar -->
     <nav class="bg-base-300 p-4 shadow-md">
-        <div class="container mx-auto flex items-center">
+        <div class="container mx-auto flex items-center justify-between">
             <div class="text-xl font-bold">
                 <span class="text-primary">Horo</span>loge
+            </div>
+            <div>
+                <button id="notification-button" class="btn btn-primary btn-sm hidden">
+                    Enable Notifications
+                </button>
             </div>
         </div>
     </nav>
@@ -31,9 +44,22 @@
         </div>
     </footer>
 
-</body>
+    <!-- PWA Installation Banner (iOS) -->
+    <div id="ios-install-banner" class="fixed bottom-0 left-0 right-0 bg-base-300 p-4 hidden">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-bold">Install Horologe</p>
+                <p class="text-sm">Add to Home Screen for the best experience</p>
+            </div>
+            <div>
+                <button id="close-banner" class="btn btn-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Format UTC dates
     document.querySelectorAll('[data-utc]').forEach(function(element) {
       let utcString = element.getAttribute('data-utc');
       if (utcString && utcString !== "") {
@@ -45,8 +71,8 @@
             day: 'numeric',
             month: 'short',
             hour: 'numeric',
-            minute: '2-digit',
-            timeZoneName: 'short'
+            minute: '2-digit'
+
           }).format(date);
           element.textContent = formatted;
         } catch (e) {
@@ -56,6 +82,103 @@
         element.textContent = "No upcoming episode";
       }
     });
+
+    // PWA Installation
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    // Show installation banner for iOS
+    if (isIOS && !isInStandaloneMode) {
+      document.getElementById('ios-install-banner').classList.remove('hidden');
+    }
+
+    // Close iOS installation banner
+    document.getElementById('close-banner').addEventListener('click', function() {
+      document.getElementById('ios-install-banner').classList.add('hidden');
+    });
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+          // Show notification button if Push API is supported
+          if ('PushManager' in window) {
+            const notificationButton = document.getElementById('notification-button');
+            notificationButton.classList.remove('hidden');
+            notificationButton.addEventListener('click', requestNotificationPermission);
+          }
+        })
+        .catch(function(error) {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+
+    // Request notification permission
+    function requestNotificationPermission() {
+      Notification.requestPermission().then(function(permission) {
+        if (permission === 'granted') {
+          subscribeUserToPush();
+        }
+      });
+    }
+
+    // Subscribe to push notifications
+    function subscribeUserToPush() {
+      const applicationServerKey = urlBase64ToUint8Array(
+        'BPnb_ocJUtpagevTb5bz-lQAw4xyKZWmoaTO4tdaLUpBPQyADzJGQW17R4Ib0BsGRodTZT1MkQ8xuS8kXyupthQ='
+      );
+
+      navigator.serviceWorker.ready
+        .then(function(registration) {
+          return registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+          });
+        })
+        .then(function(subscription) {
+          // Send subscription to server
+          return sendSubscriptionToServer(subscription);
+        })
+        .then(function() {
+          document.getElementById('notification-button').textContent = 'Notifications Enabled';
+          document.getElementById('notification-button').disabled = true;
+        })
+        .catch(function(error) {
+          console.error('Failed to subscribe to push notifications:', error);
+        });
+    }
+
+    // Send subscription to server
+    function sendSubscriptionToServer(subscription) {
+      return fetch('/api/save-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscription: subscription,
+          shows: ['Severance', 'Invincible']
+        }),
+      });
+    }
+
+    // Helper function to convert base64 to Uint8Array
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
   });
 </script>
+</body>
 </html>
