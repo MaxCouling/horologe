@@ -14,10 +14,10 @@ os.makedirs('static/icons', exist_ok=True)
 
 # Store subscriptions
 SUBSCRIPTION_FILE = 'subscriptions.json'
-VAPID_PRIVATE_KEY = 'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgk5wIH6NnHoW9WhMO6aaVFggUuxl4Ps-Frk8TTWKL7MmhRANCAAT52_6HCVLaWoHr02-W8_pUAMOMcimVpqGkzuLXWi1KQT0MgA8yRkFte0eCG9AbBkaHU2U9TJEPMbkvJF8rqbYU'
-VAPID_PUBLIC_KEY = 'BPnb_ocJUtpagevTb5bz-lQAw4xyKZWmoaTO4tdaLUpBPQyADzJGQW17R4Ib0BsGRodTZT1MkQ8xuS8kXyupthQ='
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY')
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY')
 VAPID_CLAIMS = {
-    'sub': 'mailto:max.couling@outlook.com'  # Your contact info
+    'sub': os.getenv('VAPID_SUB', 'mailto:your-email@example.com')
 }
 
 
