@@ -80,7 +80,7 @@ def get_show_info(show_name):
     if not slug:
         return {"name": show_name, "poster": "", "next_episode": "Show not found"}
 
-    poster_url = get_show_poster(slug) or f"https://via.placeholder.com/300x450?text={show_name}"
+    poster_url = get_show_poster(slug)
     next_ep = get_next_episode(slug)
 
     if next_ep:
