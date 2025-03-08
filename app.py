@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     shows_to_display = []
-    for title in ["Severance", "Invincible"]:
+    for title in ["Severance", "Invincible","Georgie and Mandy's First Marriage"]:
         shows_to_display.append(get_show_info(title))
 
     return render_template('index.html', featured_shows=shows_to_display)
